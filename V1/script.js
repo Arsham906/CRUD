@@ -9,7 +9,7 @@ const tableEL = document.querySelector('table');
 
 formEl.addEventListener("submit", onAddStudent);
 tableEL.addEventListener("click", onDeleteBtn);
-addTable(myArray)
+//addTable(myArray)
     
 function Student(sn, name, fn, uni, sf, dob){
     this.sn = sn;

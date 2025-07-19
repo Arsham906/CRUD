@@ -1,23 +1,26 @@
 <!DOCTYPE html>
-<html lang='en'>
+<html lang="en">
 <head>
-    <title> CRUD </title>
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
 </head>
 <body>
-    <h1> home page </h1>
-    <form>
-        <input type='text' placeholder='Name' id='name'>
-        <input type='text' placeholder='Student Number' id='sn'>
-        <button> Submit </button>
+    <h1>post this</h1>
+    <form action="http://localhost:3000" method="post">
+        <input type="text", name="name"> 
+        <input type="text", name="uni"> 
+        <input type="text", name="field"> 
+        <button>submit</button>
     </form>
-    <table>
-        <tr>
-            <th>ID</th>
-            <th>Name</th>
-            <th>Student Number</th>
-        </tr>
-    </table>
-    <script src="script.js"></script>
+    <h1>get students</h1>
+    <form action="http://localhost:3000" method="get">
+        <button>submit</button>
+    </form>
+    <h1>delete students</h1>
+    <form method="POST" action="/1?_method=DELETE">
+        <button>submit</button>
+    </form>
+      
 </body>
 </html>

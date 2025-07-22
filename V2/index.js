@@ -63,6 +63,7 @@ app.put("/", (req, res) => {
     // console.log(oldElement);
     updateArr(id, newName, newUni, newField);
     // console.log(oldElement)
+    res.send()
     console.log(arr)
 })
 

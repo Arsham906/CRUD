@@ -22,14 +22,30 @@ function read() {
     }
 }
 read();
-// window.addEventListener("onload", () => {
-//     read();
-// })
 
+function clearForm(form) {
+    for (input of form) {
+        input.value = "";
+    }
+}
+
+const form = document.querySelector("form");
 function create() {
     const name = document.getElementById("name").value;
     const uni = document.getElementById("uni").value;
     const field = document.getElementById("field").value;
+    // console.log(typeof (name));
+    // console.log(parseInt(name));
+    // console.log(parseInt(name) === String(name) || parseInt(name) !== NaN);
+    if (!name || !uni || !field) {
+        alert("fill the fileds");
+        return;
+    } else if (parseInt(name) || parseInt(uni) || parseInt(field)) {
+        alert("input not valid");
+        return;
+    } else {
+        clearForm(form);
+    }
 
     const req = new XMLHttpRequest();
     req.open("POST", "http://localhost:3000");
@@ -47,6 +63,11 @@ function create() {
     }
 }
 
+form.addEventListener("submit", e => {
+    e.preventDefault();
+    create();
+})
+
 function showEdit(id) {
     const req = new XMLHttpRequest();
     req.open("GET", `http://localhost:3000/${id}`);
@@ -60,7 +81,7 @@ function showEdit(id) {
             const uniInput = document.querySelector("#edit_form #uni");
             const fieldInput = document.querySelector("#edit_form #field");
             const editButton = document.querySelector("#edit_form button")
-            
+
             if (nameInput.hasAttribute("hidden")) {
                 nameInput.value = `${object.name}`;
                 uniInput.value = `${object.uni}`;
@@ -77,9 +98,9 @@ function showEdit(id) {
 
                     edit(id, nameInput.value, uniInput.value, fieldInput.value);
                 });
-            }else{
+            } else {
                 alert("first submit current changes!");
-            
+
             }
         }
     }

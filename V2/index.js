@@ -1,86 +1,119 @@
 const express = require("express");
 const cors = require("cors");
-// const multer = require("multer");
 const app = express();
-// const upload = multer();
+const { mongoGCPError } = require("mongodb");
+const mongoose = require("mongoose");
 
-const arr = [
-    { "id": 0, "name": "arsham", "uni": "sbu", "field": "stat" },
-    { "id": 1, "name": "mamad", "uni": "tehran", "field": "maths" },
-    { "id": 2, "name": "ali", "uni": "sut", "field": "cs" },
-    { "id": 3, "name": "hasan", "uni": "khawrazmee", "field": "ce" },
-    { "id": 4, "name": "hosein", "uni": "sbu", "field": "ee" },
-]
+mongoose.connect("mongodb://localhost:27017/crud")
+    .then(() => {
+        console.log("CONNECTION OPEN!");
+    })
+    .catch(e => {
+        console.log("ERROR!!!");
+        console.log(e);
+    })
 
-const addToArr = function (name, uni, field) {
-    arr.push({ "id": arr.length, "name": name, "uni": uni, "field": field });
-}
-
-const flushArr = function () {
-    for (let obj of arr) {
-        console.log(obj.name, obj.uni, obj.field);
+const studentSchema = mongoose.Schema({
+    name: {
+        type: String,
+        required: true,
+        maxlength: 20
+    },
+    uni: {
+        type: String,
+        required: true,
+        maxlength: 50
+    },
+    field: {
+        type: String,
+        required: true,
+        maxlength: 50
     }
+})
+
+const Student = mongoose.model("Student", studentSchema);
+
+const newStudent = (name, uni, field) => {
+    const s = new Student({
+        name: name,
+        uni: uni,
+        field: field
+    });
+    s.save();
 }
 
-const updateArr = function (id, newName, newUni, newField) {
-    arr.splice(id, 1, {"id": parseInt(id), "name": newName, "uni": newUni, "field": newField});
+
+const findStudent = async (filter = {}) => {
+    let result;
+    await Student.find(filter).then((d) => {
+        // console.log(d);
+        result = d;
+    });
+    // console.log(result);
+    return result;
 }
 
-const delStudent = function (id) {
-    arr.splice(id, 1);
-    const func = (e) => e.id > id ? e.id-- : null;
-    arr.forEach(func);
+const updateStudent = async (filter, update) => {
+    const result = await Student.updateOne(filter, update);
+}
+
+const deleteStudent = async (filter) => {
+    const result = await Student.deleteOne(filter);
+    return result;
 }
 
 app.use(cors());
-// app.use(upload.none());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// app.use((req, res) => {
-//     console.dir(req);
-//     // res.send("hello");
-// });
-
-app.get("/", (req, res) => {
-    flushArr();
-    res.send(JSON.stringify(arr));
+app.get("/", async (req, res) => {
+    let students;
+    await findStudent().then((d) => {
+        students = d;
+        // console.log(d);
+        // console.log(students);
+    });
+    // console.log(students);
+    res.send(JSON.stringify(students));
 })
 
-app.get("/:id", (req, res) => {
+app.get("/:id", async (req, res) => {
+    console.log("in getID");
+    console.log(req.params);
+    const { id } = await req.params;
+    console.log(id);
     // console.log(req.params);
-    const { id } = req.params;
-    // console.log(id);
-    const wantedElement = arr.find(element => element.id == id);
-    // console.log(wantedElement);
-    res.send(JSON.stringify(wantedElement));
+    let result;
+    await findStudent({ _id: id }).then((d) => {
+        result = d;
+        // console.log(d);
+    });
+    console.log(result);
+    res.send(JSON.stringify(result));
 })
 
 app.put("/", (req, res) => {
+    console.log("in put");
     const { id, newName, newUni, newField } = req.body;
-    // const oldElement = arr.find(element => element.id == id);
     console.log(id, newName, newUni, newField);
-    // console.log(oldElement);
-    updateArr(id, newName, newUni, newField);
-    // console.log(oldElement)
-    console.log(arr)
+    updateStudent({ _id: id }, { name: newName, uni: newUni, field: newField });
+    res.send()
 })
 
 app.post("/", (req, res) => {
     // console.dir(req);
     console.log(req.body);
     const { name, uni, field } = req.body;
-    addToArr(name, uni, field);
+    newStudent(name, uni, field);
     res.send("student added");
-    console.log(arr);
 });
 
 app.delete("/:id", (req, res) => {
     console.log(req.params);
     const { id } = req.params;
     console.log(id);
+    deleteStudent({_id: id});
     res.send("delete");
-    delStudent(id);
 });
 
 app.listen(3000, () => {

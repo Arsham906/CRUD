@@ -1,7 +1,7 @@
 
 function read() {
     const req = new XMLHttpRequest();
-    req.open("GET", "http://localhost:3000");
+    req.open("GET", "http://localhost:8080");
     req.send();
     req.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
@@ -14,8 +14,8 @@ function read() {
                 newRow += `<td> ${object.name} </td>`;
                 newRow += `<td> ${object.uni} </td>`;
                 newRow += `<td> ${object.field} </td>`;
-                newRow += `<td><button onclick="showEdit('${object._id}')">Edit</button></td>`;
-                newRow += `<td><button onclick="deleteRow('${object._id}')">Delete</button></td>`;
+                newRow += `<td><div class="btn-group"><button class="btn btn-info" onclick="showEdit('${object._id}')">Edit</button>`;
+                newRow += `<button class="btn btn-danger" onclick="deleteRow('${object._id}')">Delete</button></div></td>`;
                 newRow += `</tr>`;
             }
             const table = document.getElementById("myTable").innerHTML = newRow;
@@ -33,16 +33,34 @@ function clearForm(form) {
 
 const form = document.querySelector("form");
 function create() {
-    const name = document.getElementById("name").value;
-    const uni = document.getElementById("uni").value;
-    const field = document.getElementById("field").value;
+    const nameElement = document.getElementById("name");
+    const uniElement = document.getElementById("uni");
+    const fieldElement = document.getElementById("field");
+    nameElement.classList.remove("is-invalid");
+    uniElement.classList.remove("is-invalid");
+    fieldElement.classList.remove("is-invalid");
+    const name = nameElement.value;
+    const uni = uniElement.value;
+    const field = fieldElement.value;
     // console.log(typeof (name));
     // console.log(parseInt(name));
     // console.log(parseInt(name) === String(name) || parseInt(name) !== NaN);
     if (!name || !uni || !field) {
+        const elements = [nameElement, uniElement, fieldElement];
+        for (element of elements) {
+            if (!element.value) {
+                element.classList.add("is-invalid");
+            }
+        }
         alert("fill the fileds");
         return;
     } else if (parseInt(name) || parseInt(uni) || parseInt(field)) {
+        const elements = [nameElement, uniElement, fieldElement];
+        for (element of elements) {
+            if (parseInt(element.value)) {
+                element.classList.add("is-invalid");
+            }
+        }
         alert("input not valid");
         return;
     } else {
@@ -50,7 +68,7 @@ function create() {
     }
 
     const req = new XMLHttpRequest();
-    req.open("POST", "http://localhost:3000");
+    req.open("POST", "http://localhost:8080");
     req.setRequestHeader("content-type", "application/json");
     req.send(JSON.stringify({
         "name": name,
@@ -75,7 +93,7 @@ function showEdit(id) {
     // console.log(id);
     console.log(id);
     const req = new XMLHttpRequest();
-    req.open("GET", `http://localhost:3000/${id}`);
+    req.open("GET", `http://localhost:8080/${id}`);
     req.send()
     req.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
@@ -84,25 +102,36 @@ function showEdit(id) {
             console.log("the object is", object);
             const id = document.querySelector("#id");
             const nameInput = document.querySelector("#new_name");
+            const nameLabel = nameInput.nextElementSibling;
+            // nameLabel.removeAttribute("hidden");
+            // console.dir(nameLabel);
             const uniInput = document.querySelector("#new_uni");
+            const uniLabel = uniInput.nextElementSibling;
             const fieldInput = document.querySelector("#new_field");
+            const fieldLabel = fieldInput.nextElementSibling;
             const editButton = document.querySelector("#edit_form button")
 
-            // console.log(nameInput);
-            
+            console.dir(nameInput);
+
             if (nameInput.hasAttribute("hidden")) {
                 id.value = `${object[0]._id}`;
                 nameInput.value = `${object[0].name}`;
                 uniInput.value = `${object[0].uni}`;
                 fieldInput.value = `${object[0].field}`;
                 nameInput.removeAttribute("hidden");
+                nameLabel.removeAttribute("hidden");
                 uniInput.removeAttribute("hidden");
+                uniLabel.removeAttribute("hidden");
                 fieldInput.removeAttribute("hidden");
+                fieldLabel.removeAttribute("hidden");
                 editButton.removeAttribute("hidden");
                 editButton.onclick = () => {
                     nameInput.setAttribute("hidden", "");
+                    nameLabel.setAttribute("hidden", "");
                     uniInput.setAttribute("hidden", "");
+                    uniLabel.setAttribute("hidden", "");
                     fieldInput.setAttribute("hidden", "");
+                    fieldLabel.setAttribute("hidden", "");
                     editButton.setAttribute("hidden", "");
                     console.log(id.value, nameInput.value, uniInput.value, fieldInput.value);
                     edit(id.value, nameInput.value, uniInput.value, fieldInput.value);
@@ -117,7 +146,7 @@ function showEdit(id) {
 
 function edit(id, newName, newUni, newField) {
     const req = new XMLHttpRequest();
-    req.open("PUT", "http://localhost:3000");
+    req.open("PUT", "http://localhost:8080");
     req.setRequestHeader("content-type", "application/json");
     req.send(JSON.stringify({
         "id": id,
@@ -134,7 +163,7 @@ function edit(id, newName, newUni, newField) {
 
 function deleteRow(id) {
     const req = new XMLHttpRequest();
-    req.open("DELETE", `http://localhost:3000/${id}`);
+    req.open("DELETE", `http://localhost:8080/${id}`);
     req.setRequestHeader("content-type", "application/json");
     req.send();
     req.onreadystatechange = function (e) {

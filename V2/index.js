@@ -64,16 +64,38 @@ const deleteStudent = async (filter) => {
 
 app.use(cors());
 app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
+// app.use(express.urlencoded({ extended: true }));
 
 app.get("/", async (req, res) => {
+    console.log("in get /");
+    // console.log(req.body, req.query, req.params);
     let students;
-    await findStudent().then((d) => {
+    let filter = {};
+
+    const tags = [req.query.values];
+    const filterBy = req.query.key;
+    // const { tags, filterBy } = req.query;
+    console.log(req.query.values);
+    console.log(filterBy, tags)
+    if (filterBy === "name") {
+        for (tag of tags) {
+            filter = { name: tag };
+        }
+    } else if (filterBy === "uni") {
+        for (tag of tags) {
+            filter = { uni: tag };
+        }
+    } else if (filterBy === "field") {
+        for (tag of tags) {
+            filter = { field: tag };
+        }
+    }
+
+    await findStudent(filter).then((d) => {
         students = d;
-        // console.log(d);
-        // console.log(students);
     });
-    // console.log(students);
+    console.log(students);
     res.send(JSON.stringify(students));
 })
 
@@ -112,7 +134,7 @@ app.delete("/:id", (req, res) => {
     console.log(req.params);
     const { id } = req.params;
     console.log(id);
-    deleteStudent({_id: id});
+    deleteStudent({ _id: id });
     res.send("delete");
 });
 

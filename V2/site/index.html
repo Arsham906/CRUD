@@ -11,22 +11,44 @@
 
 <body>
     <div class="container">
-        <form class="row g-3" action="#">
+        <form class="row m-5 g-3" action="#">
             <h1>Create</h1>
-            <div class="form-floating col-md-2">
+            <div class="form-floating col-md-4">
                 <input class="form-control" id="name" type="text" name="name" placeholder="name">
                 <label class="form-label" for="name">Name</label>
             </div>
-            <div class="form-floating col-md-2">
+            <div class="form-floating col-md-4">
                 <input class="form-control" id="uni" type="text" name="uni" placeholder="university">
                 <label for="uni">University</label>
             </div>
-            <div class="form-floating col-md-2">
+            <div class="form-floating col-md-4">
                 <input class="form-control" id="field" type="text" name="field" placeholder="field of study">
                 <label for="field">Field Of study</label>
             </div>
-            <div class="col-12">
-                <button class="btn btn-primary ">submit</button>
+            <div>
+                <button class="btn btn-primary">submit</button>
+            </div>
+        </form>
+
+        <form class="from-inline" action="#" id="filter_form">
+            <div class="row">
+                <div class="form-floating col-md-2">
+                    <select class="form-control" name="filterOn" id="filter_on">
+                        <option value="name">name</option>
+                        <option value="uni">university</option>
+                        <option value="field">field of study</option>
+                        <option value="NULL" selected>...</option>
+                    </select>
+                    <label class="form-label" for="filter_on">Filter On</label>
+                </div>
+                <div class="form-floating form-group col-md-6">
+                    <input class="form-control" type="text" name="search" id="search" placeholder="search for">
+                    <label class="form-label" for="search">separate tags by camma(,)</label>
+                </div>
+                <div class="btn-group col">
+                <button class="btn btn-success btn-md" id="filter_button">Filter</button>
+                <button class="btn btn-danger btn-md" id="remove_filter_button">Remove Filters</button>
+                </div>
             </div>
         </form>
 
@@ -36,7 +58,8 @@
                     <tr>
                         <th>name</th>
                         <th>university</th>
-                        <th>field of study</th>
+                        <th>field of study</div>
+                        </th>
                         <th>action</th>
                     </tr>
                 </thead>

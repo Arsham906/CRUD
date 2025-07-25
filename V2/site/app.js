@@ -1,4 +1,3 @@
-
 function showData(objects) {
     let newRow = '';
     for (object of objects) {
@@ -28,6 +27,21 @@ function read() {
 }
 // read();
 
+function checkValidation(fieldList) {
+    for (field of fieldList) {
+        if (field.classList.contains("is-invalid")) {
+            field.classList.remove("is-invalid");
+        }
+
+        if (!field.value || field.value == "NULL" || parseInt(field.value)) {
+            alert("fill the fields correctly");
+            field.classList.add("is-invalid");
+            return false;
+        }
+    }
+    return true;
+}
+
 function clearForm(form) {
     for (input of form) {
         input.value = "";
@@ -49,27 +63,10 @@ function create() {
     // console.log(typeof (name));
     // console.log(parseInt(name));
     // console.log(parseInt(name) === String(name) || parseInt(name) !== NaN);
-    if (!name || !uni || !field) {
-        const elements = [nameElement, uniElement, fieldElement];
-        for (element of elements) {
-            if (!element.value) {
-                element.classList.add("is-invalid");
-            }
-        }
-        alert("fill the fileds");
-        return;
-    } else if (parseInt(name) || parseInt(uni) || parseInt(field)) {
-        const elements = [nameElement, uniElement, fieldElement];
-        for (element of elements) {
-            if (parseInt(element.value)) {
-                element.classList.add("is-invalid");
-            }
-        }
-        alert("input not valid");
-        return;
-    } else {
-        clearForm(form);
-    }
+
+    if (!checkValidation([nameElement, uniElement, fieldElement])) return;
+
+    clearForm(form);
 
     const req = new XMLHttpRequest();
     req.open("POST", "http://localhost:8080");
@@ -95,50 +92,45 @@ form.addEventListener("submit", e => {
 function showEdit(id) {
     // const id = obj._id;
     // console.log(id);
-    console.log(id);
+    const idInput = document.querySelector("#id");
+    const nameInput = document.querySelector("#new_name");
+    const nameLabel = nameInput.nextElementSibling;
+    // nameLabel.removeAttribute("hidden");
+    // console.dir(nameLabel);
+    const uniInput = document.querySelector("#new_uni");
+    const uniLabel = uniInput.nextElementSibling;
+    const fieldInput = document.querySelector("#new_field");
+    const fieldLabel = fieldInput.nextElementSibling;
+    const editButton = document.querySelector("#edit_form button")
+
+    const formArr = [nameInput, nameLabel, uniInput, uniLabel, fieldInput, fieldLabel, editButton];
+
+    // console.log(id);
     const req = new XMLHttpRequest();
     req.open("GET", `http://localhost:8080/${id}`);
     req.send()
     req.onreadystatechange = function () {
         if (this.readyState == 4 && this.status == 200) {
-            console.log(this.responseText);
+            // console.log(this.responseText);
             const object = JSON.parse(this.responseText);
-            console.log("the object is", object);
-            const id = document.querySelector("#id");
-            const nameInput = document.querySelector("#new_name");
-            const nameLabel = nameInput.nextElementSibling;
-            // nameLabel.removeAttribute("hidden");
-            // console.dir(nameLabel);
-            const uniInput = document.querySelector("#new_uni");
-            const uniLabel = uniInput.nextElementSibling;
-            const fieldInput = document.querySelector("#new_field");
-            const fieldLabel = fieldInput.nextElementSibling;
-            const editButton = document.querySelector("#edit_form button")
+            // console.log("the object is", object);
 
-            console.dir(nameInput);
+            // console.dir(nameInput);
 
             if (nameInput.hasAttribute("hidden")) {
-                id.value = `${object[0]._id}`;
+                idInput.value = `${object[0]._id}`;
                 nameInput.value = `${object[0].name}`;
                 uniInput.value = `${object[0].uni}`;
                 fieldInput.value = `${object[0].field}`;
-                nameInput.removeAttribute("hidden");
-                nameLabel.removeAttribute("hidden");
-                uniInput.removeAttribute("hidden");
-                uniLabel.removeAttribute("hidden");
-                fieldInput.removeAttribute("hidden");
-                fieldLabel.removeAttribute("hidden");
-                editButton.removeAttribute("hidden");
+                for (el of formArr) {
+                    el.removeAttribute("hidden");
+                }
                 editButton.onclick = () => {
-                    nameInput.setAttribute("hidden", "");
-                    nameLabel.setAttribute("hidden", "");
-                    uniInput.setAttribute("hidden", "");
-                    uniLabel.setAttribute("hidden", "");
-                    fieldInput.setAttribute("hidden", "");
-                    fieldLabel.setAttribute("hidden", "");
-                    editButton.setAttribute("hidden", "");
-                    console.log(id.value, nameInput.value, uniInput.value, fieldInput.value);
-                    edit(id.value, nameInput.value, uniInput.value, fieldInput.value);
+                    for (el of formArr) {
+                        el.setAttribute("hidden", "");
+                    }
+                    // console.log(idInput.value, nameInput.value, uniInput.value, fieldInput.value);
+                    edit(idInput.value, nameInput.value, uniInput.value, fieldInput.value);
                 }
             } else {
                 alert("first submit current changes!");
@@ -166,30 +158,21 @@ function edit(id, newName, newUni, newField) {
 }
 
 function deleteRow(id) {
-    const req = new XMLHttpRequest();
-    req.open("DELETE", `http://localhost:8080/${id}`);
-    req.setRequestHeader("content-type", "application/json");
-    req.send();
-    req.onreadystatechange = function (e) {
-        if (this.readyState == 4 && this.status == 200) {
-            read();
-        }
-    }
-}
+    const nameEditInput = document.querySelector("#new_name");
 
-function chackValidation(fieldList) {
-    for (field of fieldList) {
-        if (field.classList.contains("is-invalid")) {
-            field.classList.remove("is-invalid");
+    if (nameEditInput.hasAttribute("hidden")) {
+        const req = new XMLHttpRequest();
+        req.open("DELETE", `http://localhost:8080/${id}`);
+        req.setRequestHeader("content-type", "application/json");
+        req.send();
+        req.onreadystatechange = function (e) {
+            if (this.readyState == 4 && this.status == 200) {
+                read();
+            }
         }
-
-        if (!field.value || field.value == "NULL") {
-            alert("fill the fields");
-            field.classList.add("is-invalid");
-            return false;
-        }
+    } else {
+        alert("submit the edit form first");
     }
-    return true;
 }
 
 const filterBtn = document.querySelector("#filter_button");
@@ -198,15 +181,18 @@ function filter() {
     const filterOpt = document.querySelector("#filter_on");
     const search = document.querySelector("#search");
     // console.dir(filterBtn);
-    if (!chackValidation([filterOpt, search])) return;
+    if (!checkValidation([filterOpt, search])) return;
 
     const filterOptValue = filterOpt.value;
     const searchValue = search.value;
     const tagsArr = searchValue.split(",");
-    console.log(tagsArr);
+    // console.log(tagsArr);
     let queryString = "";
-    for (tag of tagsArr){
-        queryString += `values=${tag}&`;
+    for (tag of tagsArr) {
+        const temp = tag.trim();
+        if (temp) {
+            queryString += `values=${tag.trim()}&`;
+        }
     }
     // console.log(queryString);
 
